@@ -5,257 +5,246 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Research Workspace - Copy creator</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', sans-serif; }
-        
+        body { font-family: 'Inter', sans-serif; scroll-behavior: smooth; background-color: #fcfcfd; }
         .upload-zone { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-        .upload-zone:hover {
-            border-color: #6366f1;
-            background-color: #f8fafc;
-            transform: translateY(-2px);
-
-        }
+        .upload-zone:hover { border-color: #6366f1; background-color: #f8fafc; transform: translateY(-2px); box-shadow: 0 15px 30px -10px rgba(99, 102, 241, 0.2); }
         
         .loading-shimmer {
             background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
             background-size: 200% 100%;
             animation: shimmer 1.5s infinite;
         }
-        @keyframes shimmer {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
-        }
+        @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
 
         .document-font { font-family: 'Merriweather', serif; }
+        #online-preview-modal { background: rgba(8, 10, 20, 0.99); }
         
-        #online-preview-modal { background: rgba(15, 23, 42, 0.98); }
+        .preview-title-block { column-span: all; width: 100%; margin-bottom: 3.5rem; text-align: center; border-bottom: 3px solid #f1f5f9; padding-bottom: 2.5rem; }
+        .view-columns { column-count: 2; column-gap: 4rem; column-rule: 1px solid #e2e8f0; text-align: justify; }
+        .view-table { display: block; width: 100%; }
+        .view-table .content-para { display: block; padding: 1.5rem; border-bottom: 1px solid #f1f5f9; background: #fff; margin-bottom: 0.75rem; border-left: 6px solid #6366f1; font-size: 0.95rem; }
 
-        /* Viewing Formats */
-        .preview-title-block { column-span: all; width: 100%; margin-bottom: 2rem; }
-        
-        .view-columns {
-            column-count: 2;
-            column-gap: 3rem;
-            column-rule: 1px solid #e2e8f0;
-        }
-        
-        .view-table {
-            display: block;
-            width: 100%;
-        }
-        .view-table .content-para {
-            display: block;
-            padding: 1rem;
-            border-bottom: 1px solid #f1f5f9;
-            background: #fff;
-            margin-bottom: 0.5rem;
-            border-left: 4px solid #6366f1;
-        }
-
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar { width: 8px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
         
-        img.inserted-image {
-            width: 100%;
-            height: auto;
-            border-radius: 0.75rem;
-            margin: 2rem 0;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        img.inserted-image { 
+            width: 100%; height: auto; border-radius: 1.5rem; margin: 4rem 0; 
+            box-shadow: 0 40px 80px -15px rgba(0, 0, 0, 0.3); 
+            display: block; margin-left: auto; margin-right: auto; max-width: 100%; 
+            border: 1px solid #eef2f6; background: #fff;
         }
+
+        .tag-indicator { position: absolute; top: 12px; left: 12px; background: #6366f1; color: white; padding: 4px 10px; border-radius: 8px; font-size: 10px; font-weight: 900; z-index: 10; }
+        .ai-status-pill { display: flex; align-items: center; gap: 0.6rem; padding: 0.4rem 1rem; border-radius: 9999px; font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.08em; }
+
+        #ai-percentage-meter { transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1); }
     </style>
 </head>
 <body class="bg-white text-slate-900 min-h-screen flex flex-col">
 
-    <!-- Workspace Header -->
-    <nav class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-200 px-8 py-4 flex items-center justify-between">
-      <button onclick="goBack()" 
-    class="px-3 py-2 rounded-xl text-sm font-bold text-slate-500 hover:text-indigo-600 hover:bg-slate-100 transition">
-    ← Back
-</button>
-
-        <div class="flex items-center gap-4">
-            <div class="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center text-white shadow-lg shadow-indigo-200">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
+    <!-- Navbar Header -->
+    <nav class="sticky top-0 z-50 bg-white/95 backdrop-blur-2xl border-b border-slate-200 px-10 py-6 flex items-center justify-between no-print shadow-sm">
+        <button onclick="goBack()" class="px-6 py-2.5 rounded-2xl text-sm font-black text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 transition-all border border-transparent hover:border-indigo-100">← Back</button>
+        <div class="flex items-center gap-6">
+            <div class="w-12 h-12 rounded-2xl bg-indigo-600 flex items-center justify-center text-white shadow-2xl shadow-indigo-300">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
             </div>
             <div>
-                <h2 class="text-xl font-bold text-slate-900 tracking-tight leading-none">Research Workspace</h2>
-                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Copy creator v3.3</span>
+                <h2 class="text-2xl font-black text-slate-900 tracking-tighter leading-none italic uppercase">Copy creator</h2>
+                <span class="text-[10px] font-bold text-indigo-500 uppercase tracking-widest uppercase">Volume Max Build v6.6</span>
             </div>
         </div>
-        
         <div class="flex items-center gap-4">
-            <div id="status-indicator" class="hidden md:flex items-center gap-2 px-4 py-2 text-sm font-semibold text-slate-400">
-                <div class="w-2 h-2 rounded-full bg-slate-200"></div>
-                Ready
-            </div>
-            <div class="h-8 w-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 border border-slate-200">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
-                </svg>
+            <div id="status-indicator" class="flex items-center gap-3 px-5 py-2.5 text-sm font-black text-slate-400 bg-slate-50 rounded-2xl border border-slate-100">
+                <div id="ready-dot" class="w-3 h-3 rounded-full bg-slate-300"></div>
+                <span id="ready-text">Neural Core Ready</span>
             </div>
         </div>
     </nav>
     
-    <!-- Main Content Area -->
-    <main class="flex-grow w-full max-w-7xl mx-auto py-10 px-6 lg:px-8">
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
+    <!-- Workspace -->
+    <main class="flex-grow w-full max-w-7xl mx-auto py-12 px-10 no-print">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-16">
             
-            <!-- Left Column: Primary Inputs -->
-            <div class="lg:col-span-7 space-y-10">
-                <section class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Left Panel -->
+            <div class="lg:col-span-7 space-y-12">
+                <section class="grid grid-cols-1 md:grid-cols-3 gap-10">
                     <div class="md:col-span-2">
-                        <label class="block text-xs font-bold text-indigo-500 uppercase tracking-[0.2em] mb-4">Project Identity</label>
-                        <input type="text" id="research-title"
-                            placeholder="Enter the title of your research..." 
-                            class="w-full text-4xl font-black bg-transparent border-b-2 border-slate-100 focus:border-indigo-500 focus:outline-none transition-all py-3 placeholder:text-slate-200 tracking-tight">
+                        <label class="block text-xs font-black text-indigo-500 uppercase tracking-[0.3em] mb-4">Research Topic</label>
+                        <input type="text" id="research-title" placeholder="Manuscript domain name..." class="w-full text-5xl font-black bg-transparent border-b-4 border-slate-100 focus:border-indigo-600 focus:outline-none transition-all py-4 placeholder:text-slate-100 tracking-tighter">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-indigo-500 uppercase tracking-[0.2em] mb-4">Target Length</label>
-                        <select id="report-length" class="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-indigo-500 focus:outline-none font-bold text-slate-700">
-                            <option value="3 pages">3 Pages (600-750 words)</option>
-                            <option value="4 pages">4 Pages (800-1000 words)</option>
-                            <option value="5 pages">5 Pages (1000-1250 words)</option>
-                            <option value="6 pages">6 Pages (1200-1500 words)</option>
-                            <option value="7 pages">7 Pages (1400-1750 words)</option>
-                            <option value="8 pages">8 Pages (1600-2000 words)</option>
-                            <option value="9 pages">9 Pages (1800-2250 words)</option>
-                            <option value="10 pages">10 Pages (2000-2500 words)</option>
+                        <label class="block text-xs font-black text-indigo-500 uppercase tracking-[0.3em] mb-4">Manuscript Depth (Doubled)</label>
+                        <select id="report-length" class="w-full p-5 bg-slate-50 border border-slate-200 rounded-[2.5rem] font-black text-slate-700 outline-none hover:bg-white transition-all shadow-sm">
+                            <option value="3 pages">3 Pages (2400-3000 words)</option>
+                            <option value="4 pages">4 Pages (3200-4000 words)</option>
+                            <option value="5 pages" selected>5 Pages (4000-5000 words)</option>
+                            <option value="6 pages">6 Pages (4800-6000 words)</option>
+                            <option value="7 pages">7 Pages (5600-7000 words)</option>
+                            <option value="8 pages">8 Pages (6400-8000 words)</option>
+                            <option value="9 pages">9 Pages (7200-9000 words)</option>
+                            <option value="10 pages">10 Pages (8000-10000 words)</option>
                         </select>
                     </div>
                 </section>
 
-                <section>
-                    <div class="flex items-center justify-between mb-4">
-                        <label class="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-widest">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                            </svg>
-                            AI Generated Extract
+                <section id="synthesis-stage">
+                    <div class="flex items-center justify-between mb-5">
+                        <label class="flex items-center gap-3 text-xs font-black text-slate-500 uppercase tracking-[0.2em]">
+                            <div class="w-5 h-5 bg-indigo-500 rounded-lg flex items-center justify-center text-white shadow-lg">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                            </div>
+                            Synthesis Terminal
                         </label>
-                        <div id="ai-badge" class="flex items-center gap-2 px-2 py-1 bg-slate-50 rounded-md transition-all">
-                            <span id="badge-dot" class="w-1.5 h-1.5 rounded-full bg-slate-300"></span>
-                            <span id="badge-text" class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">Standby</span>
+                        <div id="ai-badge" class="ai-status-pill bg-slate-100 text-slate-500">
+                            <span id="badge-dot" class="w-2 h-2 rounded-full bg-slate-300"></span>
+                            <span id="badge-text">Engine Idle</span>
                         </div>
                     </div>
-                    <div class="relative">
-                        <textarea id="ai-output" rows="14" 
-                            placeholder="Your generated research copy will appear here..." 
-                            class="w-full p-8 bg-slate-50/50 border border-slate-200 rounded-[2.5rem] shadow-sm focus:ring-8 focus:ring-indigo-500/5 focus:border-indigo-500 focus:bg-white focus:outline-none transition-all resize-none leading-relaxed text-slate-700 text-lg"></textarea>
+
+                    <div class="relative group">
+                        <textarea id="ai-output" rows="22" placeholder="Synthesis Logic: AI autonomously expands your topic or raw notes into high-volume professional research. Uploaded images are detected and placed into context automatically." class="w-full p-12 bg-slate-50/50 border-2 border-slate-100 rounded-[4rem] shadow-sm focus:ring-[20px] focus:ring-indigo-500/5 focus:border-indigo-600 focus:bg-white focus:outline-none transition-all resize-none text-slate-800 text-xl leading-relaxed font-medium custom-scrollbar"></textarea>
                     </div>
                 </section>
 
-                <section id="export-suite" class="hidden animate-in fade-in slide-in-from-top-4 duration-500">
-                    <div class="bg-indigo-50/50 rounded-[2rem] p-8 border border-indigo-100">
-                        <h3 class="text-sm font-bold text-indigo-600 uppercase tracking-[0.2em] mb-6">Finest Research Export</h3>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <button onclick="downloadAsDoc()" class="flex items-center justify-center gap-3 py-4 bg-white hover:bg-slate-50 border border-indigo-200 rounded-2xl font-bold text-slate-700 transition-all shadow-sm">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414A1 1 0 0112.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                                </svg>
-                                Download as Doc
-                            </button>
-                            <button onclick="exportOnline()" class="flex items-center justify-center gap-3 py-4 bg-white hover:bg-slate-50 border border-indigo-200 rounded-2xl font-bold text-slate-700 transition-all shadow-sm">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
-                                </svg>
-                                Watch Online Preview
-                            </button>
+                <section id="export-suite" class="hidden animate-in fade-in slide-in-from-top-12 duration-700">
+                    <div class="bg-gradient-to-br from-indigo-700 to-indigo-950 rounded-[4rem] p-14 text-white shadow-2xl">
+                        <div class="flex items-center justify-between mb-12">
+                            <div>
+                                <h3 class="text-3xl font-black tracking-tight text-white uppercase">Manuscript Complete</h3>
+                                <p class="text-indigo-300 text-sm mt-2 font-medium italic">High-volume synthesis build verified. Assets integrated.</p>
+                            </div>
+                            <button onclick="cleanupArtifacts()" class="px-6 py-3 bg-white/5 hover:bg-white/10 rounded-2xl text-[10px] font-black uppercase transition-all border border-white/10 tracking-[0.15em]">Scrub Markers</button>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-8">
+                            <button onclick="downloadAsDoc()" class="flex items-center justify-center gap-5 py-7 bg-white text-indigo-900 rounded-[2.5rem] font-black transition-all hover:scale-[1.04] shadow-2xl active:scale-95 text-lg uppercase tracking-tighter">Download .doc</button>
+                            <button onclick="exportOnline()" class="flex items-center justify-center gap-5 py-7 bg-indigo-500/20 text-white border-2 border-white/10 rounded-[2.5rem] font-black transition-all hover:scale-[1.04] uppercase tracking-tighter">Multimodal View</button>
                         </div>
                     </div>
                 </section>
             </div>
 
-            <!-- Right Column: Assets & Uploads -->
-            <div class="lg:col-span-5 space-y-8">
-                <section class="bg-indigo-600 p-8 rounded-[2.5rem] text-white shadow-xl">
-                    <h3 class="text-xs font-bold text-indigo-200 uppercase tracking-widest mb-4">Security & AI Settings</h3>
-                    <input type="password" id="api-key" placeholder="Enter Gemini API Key..." onchange="saveApiKey(this.value)" class="w-full bg-indigo-500/30 border border-indigo-400/30 rounded-2xl py-3 px-4 text-sm placeholder:text-indigo-300/60 focus:outline-none transition-all">
+            <!-- Right Panel -->
+            <div class="lg:col-span-5 space-y-10 no-print">
+                <section class="bg-slate-950 p-10 rounded-[3rem] text-white shadow-2xl border border-white/5">
+                    <h3 class="text-xs font-black text-indigo-500 uppercase tracking-[0.3em] mb-5">Authentication</h3>
+                    <input type="password" id="api-key" placeholder="Enter Gemini API Key..." onchange="saveApiKey(this.value)" class="w-full bg-white/5 border border-white/10 rounded-2xl py-5 px-7 text-sm placeholder:text-white/10 outline-none focus:ring-4 focus:ring-indigo-500/40 transition-all font-mono">
                 </section>
 
-                <section class="bg-slate-50 p-8 rounded-[2.5rem] border border-slate-100 shadow-sm">
-                    <h3 class="text-sm font-bold text-slate-800 uppercase tracking-widest mb-6">Asset Manager</h3>
-                    <div class="space-y-5">
-                        <div class="upload-zone relative p-8 bg-white border-2 border-dashed border-slate-200 rounded-3xl transition-all cursor-pointer group shadow-sm">
-                            <input type="file" id="doc-upload" accept=".pdf,.docx,.txt" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
-                            <div class="flex flex-col items-center text-center">
-                                <div id="doc-icon" class="w-14 h-14 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center mb-4 transition-all">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414A1 1 0 0112.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>
-                                </div>
-                                <p id="doc-status" class="text-sm font-bold text-slate-800">Upload research file</p>
-                            </div>
-                        </div>
-
-                        <div class="upload-zone relative p-8 bg-white border-2 border-dashed border-slate-200 rounded-3xl transition-all cursor-pointer group shadow-sm">
+                <section class="bg-slate-50 p-10 rounded-[3.5rem] border border-slate-100 shadow-sm">
+                    <h3 class="text-sm font-black text-slate-800 uppercase tracking-widest mb-8 flex items-center gap-4">
+                        <div class="w-2.5 h-7 bg-indigo-600 rounded-full"></div>
+                        Asset Inventory
+                    </h3>
+                    <div class="space-y-6">
+                        <div class="upload-zone relative p-12 bg-white border-2 border-dashed border-slate-200 rounded-[3rem] transition-all cursor-pointer group text-center shadow-inner">
                             <input type="file" id="image-upload" multiple accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
-                            <div class="flex flex-col items-center text-center">
-                                <div id="img-icon" class="w-14 h-14 bg-rose-50 text-rose-500 rounded-2xl flex items-center justify-center mb-4 transition-all">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                                </div>
-                                <p id="img-status" class="text-sm font-bold text-slate-800">Upload photos</p>
-                            </div>
+                            <div class="w-16 h-16 bg-indigo-50 text-indigo-600 rounded-3xl flex items-center justify-center mx-auto mb-5 transition-transform shadow-sm group-hover:rotate-12"><svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg></div>
+                            <p class="text-xs font-black text-slate-900 tracking-tight text-center">Manual Images (Optional)<br><span class="text-[9px] font-bold text-slate-400">AI will place these contextually</span></p>
                         </div>
+                        <div id="asset-gallery" class="grid grid-cols-2 gap-4 mt-8 max-h-64 overflow-y-auto custom-scrollbar p-2"></div>
                     </div>
                 </section>
 
-                <button onclick="generateResearch()" id="generate-btn" class="w-full py-4 bg-slate-900 text-white rounded-2xl font-bold text-sm hover:bg-indigo-600 transition-all flex items-center justify-center gap-3 disabled:opacity-50">
-                    <span>Process & Generate</span>
-                </button>
+                <section class="bg-slate-50 p-12 rounded-[3.5rem] border border-slate-100 shadow-sm opacity-60 hover:opacity-100 transition-opacity">
+                    <h3 class="text-xs font-black text-slate-800 uppercase tracking-[0.25em] mb-8 italic">Style & Tone Learner</h3>
+                    <div class="space-y-5">
+                        <button onclick="document.getElementById('structure-upload').click()" id="structure-btn" class="w-full py-5 bg-white border-2 border-slate-100 rounded-[2.5rem] text-[11px] font-black text-slate-600 flex items-center justify-center gap-4 hover:border-purple-500 transition-all shadow-sm">
+                           <div id="struct-dot" class="w-3 h-3 bg-slate-300 rounded-lg transition-colors"></div> Skeleton Ref (Optional)
+                        </button>
+                        <input type="file" id="structure-upload" accept=".pdf,.docx,.txt" class="hidden">
+                        
+                        <button onclick="document.getElementById('journal-upload').click()" id="journal-btn" class="w-full py-5 bg-white border-2 border-slate-100 rounded-[2.5rem] text-[11px] font-black text-slate-600 flex items-center justify-center gap-4 hover:border-indigo-500 transition-all shadow-sm">
+                           <div id="journ-dot" class="w-3 h-3 bg-slate-300 rounded-lg transition-colors"></div> Tone Samples (Optional)
+                        </button>
+                        <input type="file" id="journal-upload" multiple accept=".pdf,.txt,.docx" class="hidden">
+                    </div>
+                </section>
+
+                <div class="space-y-4">
+                    <button onclick="generateResearch()" id="generate-btn" class="w-full py-10 bg-slate-900 text-white rounded-[3.5rem] font-black text-xl hover:bg-indigo-600 transition-all shadow-2xl flex items-center justify-center gap-5 group uppercase">
+                        <span>Synthesize Manuscript</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 group-hover:translate-x-3 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
+                    </button>
+                    
+                    <a href="https://aistudio.google.com/app/apikey" target="_blank" class="w-full py-4 bg-indigo-50 text-indigo-600 rounded-[2rem] font-bold text-[10px] flex items-center justify-center gap-2 hover:bg-indigo-100 transition-colors border border-indigo-100 uppercase tracking-widest">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" /></svg>
+                        Acquire API Key at Google AI Studio
+                    </a>
+                </div>
             </div>
         </div>
     </main>
 
-    <!-- ONLINE PREVIEW MODAL -->
-    <div id="online-preview-modal" class="hidden fixed inset-0 z-[100] flex flex-col p-4 md:p-12 overflow-hidden">
-        <div class="max-w-6xl mx-auto w-full bg-white h-full rounded-[2.5rem] shadow-2xl flex flex-col overflow-hidden">
-            <div class="px-8 py-6 border-b border-slate-100 flex items-center justify-between">
-                <div class="flex items-center gap-6">
-                    <h3 class="font-bold text-slate-900 text-xs uppercase tracking-widest">Interactive Viewer</h3>
-                    <div class="flex bg-slate-100 p-1 rounded-xl gap-1">
-                        <button onclick="changeView('page')" id="btn-page" class="view-btn px-4 py-1.5 rounded-lg text-xs font-bold transition-all bg-white shadow-sm text-indigo-600">Page</button>
-                        <button onclick="changeView('table')" id="btn-table" class="view-btn px-4 py-1.5 rounded-lg text-xs font-bold transition-all text-slate-500 hover:bg-white/50">Table</button>
-                        <button onclick="changeView('columns')" id="btn-columns" class="view-btn px-4 py-1.5 rounded-lg text-xs font-bold transition-all text-slate-500 hover:bg-white/50">Columns</button>
+    <!-- INTERACTIVE MODAL -->
+    <div id="online-preview-modal" class="hidden fixed inset-0 z-[100] flex flex-col p-4 md:p-14 overflow-hidden">
+        <div class="max-w-6xl mx-auto w-full bg-white h-full rounded-[4.5rem] shadow-[0_0_200px_rgba(0,0,0,0.8)] flex flex-col overflow-hidden border border-white/10">
+            <div class="px-14 py-10 border-b border-slate-100 flex items-center justify-between bg-white/50 backdrop-blur-md">
+                <div class="flex items-center gap-12">
+                    <h3 class="font-black text-slate-900 text-xs uppercase tracking-[0.4em]">Integrated Viewer</h3>
+                    <div class="flex bg-slate-100 p-2 rounded-3xl gap-2 border border-slate-200 shadow-inner">
+                        <button onclick="changeView('page')" id="btn-page" class="view-btn px-10 py-3 rounded-2xl text-xs font-black transition-all bg-white shadow-2xl text-indigo-600">Standard</button>
+                        <button onclick="changeView('columns')" id="btn-columns" class="view-btn px-10 py-3 rounded-2xl text-xs font-black text-slate-500 hover:bg-white/60">Journal (2-Col)</button>
+                        <button onclick="changeView('table')" id="btn-table" class="view-btn px-10 py-3 rounded-2xl text-xs font-black text-slate-500 hover:bg-white/60">Data Table</button>
                     </div>
                 </div>
-                <button onclick="closeOnlinePreview()" class="p-2 hover:bg-slate-100 rounded-full text-slate-500">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
-                </button>
+                <button onclick="closeOnlinePreview()" class="p-5 hover:bg-slate-100 rounded-full transition-all active:scale-90"><svg xmlns="http://www.w3.org/2000/svg" class="h-9 w-9" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg></button>
             </div>
-            <div class="flex-grow overflow-y-auto p-8 md:p-16 document-font custom-scrollbar bg-slate-50/30">
-                <div id="preview-wrapper" class="max-w-4xl mx-auto bg-white p-12 md:p-20 shadow-sm border border-slate-100 min-h-full">
-                    <div class="preview-title-block">
-                        <h1 id="preview-title" class="text-5xl font-black text-slate-900 leading-tight"></h1>
-                    </div>
-                    <div id="preview-content" class="text-slate-800 leading-relaxed text-lg whitespace-pre-wrap transition-all duration-300"></div>
+            
+            <div class="flex-grow overflow-y-auto p-12 md:p-24 document-font bg-slate-50/50 custom-scrollbar">
+                <div id="preview-wrapper" class="max-w-4xl mx-auto bg-white p-20 md:p-32 shadow-2xl border border-slate-100 min-h-full transition-all duration-1000 rounded-sm">
+                    <div class="preview-title-block"><h1 id="preview-title" class="text-7xl font-black text-slate-900 leading-[1.05] tracking-tightest mb-4"></h1></div>
+                    <div id="preview-content" class="text-slate-800 leading-[1.7] text-xl whitespace-pre-wrap transition-all selection:bg-indigo-100"></div>
                 </div>
             </div>
-            <div class="px-8 py-6 bg-slate-50 border-t flex items-center justify-between">
-                <p class="text-[10px] font-bold text-slate-400">RESEARCH OUTPUT v3.3</p>
-                <div class="flex gap-3">
-                    <button id="humanize-btn" onclick="humanizeResearch()" class="px-6 py-2 bg-indigo-50 text-indigo-600 border border-indigo-200 rounded-xl text-xs font-bold hover:bg-indigo-600 hover:text-white transition-all flex items-center gap-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        Humanize Paper
-                    </button>
-                    <button onclick="downloadAsDoc()" class="px-6 py-2 bg-slate-900 text-white rounded-xl text-xs font-bold hover:bg-indigo-600 transition-all">Download Doc</button>
+            
+            <div class="px-14 py-10 bg-white border-t border-slate-100 flex flex-col gap-6">
+                <div id="ai-percent-box" class="hidden flex items-center justify-between bg-slate-50 p-6 rounded-3xl border border-slate-100 shadow-inner">
+                    <div class="flex flex-col gap-2 w-full max-w-lg">
+                        <div class="flex items-center justify-between text-[11px] font-black uppercase tracking-widest text-slate-500">
+                            <span>Human Authorship Density</span>
+                            <span id="percent-label">0%</span>
+                        </div>
+                        <div class="h-3 w-full bg-slate-200 rounded-full overflow-hidden shadow-inner">
+                            <div id="ai-percentage-meter" class="h-full bg-indigo-600 w-0 shadow-lg"></div>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <p id="audit-status" class="text-xs font-black text-indigo-600 uppercase tracking-widest italic tracking-widest uppercase">Verified</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-5">
+                       <div id="human-indicator" class="w-4 h-4 rounded-full bg-slate-300"></div>
+                       <p id="human-status" class="text-xs font-black text-slate-500 uppercase tracking-[0.2em]">Synthesis Verified Build</p>
+                    </div>
+                    <div class="flex gap-6">
+                        <button onclick="checkAiPercentage()" id="audit-btn" class="px-8 py-5 bg-slate-100 text-slate-600 rounded-[2rem] text-sm font-black hover:bg-slate-200 transition-all flex items-center gap-4">Analyze AI %</button>
+                        <button onclick="humanizeResearch()" id="humanize-btn" class="px-12 py-5 bg-indigo-600 text-white rounded-[2rem] text-sm font-black hover:bg-indigo-700 transition-all shadow-2xl flex items-center gap-4 active:scale-95">Humanize</button>
+                        <button onclick="downloadAsDoc()" class="px-12 py-5 bg-slate-900 text-white rounded-[2rem] text-sm font-black hover:bg-black transition-all shadow-xl active:scale-95">Final Export (.doc)</button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Error Modal -->
-    <div id="error-modal" class="hidden fixed inset-0 z-[200] flex items-center justify-center p-6 bg-slate-900/60 backdrop-blur-sm">
-        <div class="bg-white rounded-[2rem] p-8 max-w-sm w-full shadow-2xl">
-            <p id="error-message" class="text-slate-500 text-sm mb-6"></p>
-            <button onclick="closeError()" class="w-full py-3 bg-slate-900 text-white rounded-xl font-bold text-sm">Dismiss</button>
+    <!-- System Modal -->
+    <div id="error-modal" class="hidden fixed inset-0 z-[200] flex items-center justify-center p-8 bg-slate-950/95 backdrop-blur-3xl">
+        <div class="bg-white rounded-[4.5rem] p-16 max-w-xl w-full shadow-2xl text-center border border-slate-100">
+            <div class="w-24 h-24 bg-rose-50 text-rose-500 rounded-[2.5rem] flex items-center justify-center mx-auto mb-10 shadow-inner"><svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg></div>
+            <h4 class="text-4xl font-black text-slate-900 mb-6 tracking-tighter">System Alert</h4>
+            <p id="error-message" class="text-slate-500 text-lg mb-14 leading-relaxed font-medium"></p>
+            <button onclick="closeError()" class="w-full py-8 bg-slate-900 text-white rounded-[2.5rem] font-black text-lg active:scale-95 transition-all shadow-2xl">Dismiss</button>
         </div>
     </div>
 
     <script>
-        let extractedText = "";
+        const apiKeyEnv = ""; 
+        let structureText = ""; 
+        let journalReferenceText = ""; 
         let imageDataUrls = []; 
 
         window.onload = () => {
@@ -265,245 +254,279 @@
 
         function saveApiKey(val) { localStorage.setItem('gemini_api_key', val); }
 
-        document.getElementById('doc-upload').addEventListener('change', async (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                extractedText = event.target.result;
-                document.getElementById('doc-status').innerText = file.name;
-                document.getElementById('doc-icon').className = "w-14 h-14 bg-green-50 text-green-600 rounded-2xl flex items-center justify-center mb-4";
-            };
-            reader.readAsText(file);
-        });
+        async function fetchWithRetry(url, options, maxRetries = 5) {
+            for (let i = 0; i < maxRetries; i++) {
+                try {
+                    const response = await fetch(url, options);
+                    const data = await response.json();
+                    
+                    if (response.ok) return data;
+                    
+                    if (response.status === 429) {
+                        const delayMs = 30000; 
+                        updateGlobalStatus("Waiting for Quota Reset...");
+                        await new Promise(resolve => setTimeout(resolve, delayMs));
+                        continue;
+                    }
+                    
+                    if (response.status < 500) {
+                        throw new Error(data.error?.message || `Status ${response.status}`);
+                    }
+                } catch (err) {
+                    if (i === maxRetries - 1) throw err;
+                }
+                const delay = Math.pow(2, i) * 1000;
+                await new Promise(resolve => setTimeout(resolve, delay));
+            }
+        }
+
+        function updateGlobalStatus(txt) {
+            const btn = document.getElementById('generate-btn');
+            if (btn.disabled) btn.innerText = txt;
+        }
 
         document.getElementById('image-upload').addEventListener('change', async (e) => {
             const files = Array.from(e.target.files);
-            if (!files.length) return;
-            
-            imageDataUrls = [];
-            document.getElementById('img-status').innerText = "Processing photos...";
-            
-            for (const file of files) {
-                const dataUrl = await fileToDataUrl(file);
-                imageDataUrls.push(dataUrl);
+            const gallery = document.getElementById('asset-gallery');
+            gallery.innerHTML = ""; imageDataUrls = [];
+            for (let i = 0; i < files.length; i++) {
+                const reader = new FileReader();
+                reader.onload = (ev) => { 
+                    imageDataUrls.push(ev.target.result);
+                    gallery.innerHTML += `<div class="asset-card relative group"><img src="${ev.target.result}" class="asset-thumb shadow-md"><div class="tag-indicator">ID:${i}</div></div>`;
+                };
+                reader.readAsDataURL(files[i]);
             }
-            document.getElementById('img-status').innerText = `${files.length} Photos Prepared`;
-            document.getElementById('img-icon').className = "w-14 h-14 bg-green-50 text-green-600 rounded-2xl flex items-center justify-center mb-4";
         });
 
-        function fileToDataUrl(file) {
-            return new Promise((resolve) => {
+        document.getElementById('structure-upload').addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (file) {
                 const reader = new FileReader();
-                reader.readAsDataURL(file);
-                reader.onload = () => resolve(reader.result);
-            });
-        }
+                reader.onload = (ev) => { 
+                    structureText = ev.target.result; 
+                    document.getElementById('structure-btn').innerText = `Skeleton: ${file.name}`; 
+                    document.getElementById('struct-dot').className = "w-3 h-3 bg-green-50 rounded-lg"; 
+                };
+                reader.readAsText(file);
+            }
+        });
 
-        function getSanitizedHtml(rawText) {
-            let cleanText = rawText
-                .replace(/^#+\s/gm, '')         
-                .replace(/\*\*(.*?)\*\*/g, '$1') 
-                .replace(/\*(.*?)\*/g, '$1')     
-                .replace(/---|___/g, '')         
-                .replace(/`{1,3}.*?`{1,3}/gs, '')
-                .trim();
-
-            return cleanText.split('\n').map(para => {
-                if (!para.trim()) return '';
-                const imgRegex = /{{IMAGE:(\d+)}}/;
-                if (imgRegex.test(para)) {
-                    return para.replace(imgRegex, (match, index) => {
-                        const idx = parseInt(index);
-                        if (imageDataUrls[idx]) {
-                            return `<img src="${imageDataUrls[idx]}" class="inserted-image" style="width:100%; max-width:600px; display:block; margin:20px auto; border-radius:10px;" alt="Asset ${idx}">`;
-                        }
-                        return '';
-                    });
-                }
-                return `<p style="margin-bottom:15px; line-height:1.6;">${para}</p>`;
-            }).join('');
-        }
+        document.getElementById('journal-upload').addEventListener('change', async (e) => {
+            const files = Array.from(e.target.files);
+            journalReferenceText = "";
+            for (const file of files) {
+                const reader = new FileReader();
+                reader.onload = (ev) => { journalReferenceText += ev.target.result + "\n\n"; document.getElementById('journal-btn').innerText = `Tone Trained (${files.length})`; document.getElementById('journ-dot').className = "w-3 h-3 bg-green-50 rounded-lg"; };
+                reader.readAsText(file);
+            }
+        });
 
         function renderContent(rawText, targetElement) {
+            if (!rawText) return;
+            let html = rawText.replace(/^#+\s/gm, '').replace(/\*\*(.*?)\*\*/g, '$1').replace(/\*(.*?)\*/g, '$1').replace(/---|___/g, '').trim();
             const currentView = targetElement.dataset.view || 'page';
-            let html = getSanitizedHtml(rawText);
-            
-            if (currentView === 'table') {
-                html = html.replace(/<p(.*?)>(.*?)<\/p>/g, '<div class="content-para">$2</div>');
-            }
-            targetElement.innerHTML = html;
+            const lines = html.split('\n');
+            let outputHtml = "";
+            lines.forEach(line => {
+                if(!line.trim()) return;
+                const imgRegex = /{{IMAGE:(\d+)}}/g;
+                if (imgRegex.test(line)) {
+                    outputHtml += line.replace(imgRegex, (m, i) => {
+                        const idx = parseInt(i);
+                        return imageDataUrls[idx] ? `<img src="${imageDataUrls[idx]}" class="inserted-image">` : '';
+                    });
+                } else {
+                    outputHtml += currentView === 'table' ? `<div class="content-para">${line}</div>` : `<p class="mb-14">${line}</p>`;
+                }
+            });
+            targetElement.innerHTML = outputHtml;
         }
 
         async function generateResearch() {
-            const apiKey = document.getElementById('api-key').value;
+            const userKey = document.getElementById('api-key').value;
+            const activeKey = userKey || apiKeyEnv;
             const title = document.getElementById('research-title').value;
-            const length = document.getElementById('report-length').value;
-            const outputArea = document.getElementById('ai-output');
+            const lengthSel = document.getElementById('report-length').value;
+            const manualExtract = document.getElementById('ai-output').value;
 
-            if (!apiKey) return showError("Enter your API key.");
-            if (!extractedText) return showError("Upload research file.");
-
-            setLoading(true);
-
-            const wordCountMap = {
-                "3 pages": "600-750 words", "4 pages": "800-1000 words", "5 pages": "1000-1250 words",
-                "6 pages": "1200-1500 words", "7 pages": "1400-1750 words", "8 pages": "1600-2000 words",
-                "9 pages": "1800-2250 words", "10 pages": "2000-2500 words"
-            };
-
-            const targetWords = wordCountMap[length];
-
-            const sysPrompt = `You are an elite Research Analyst. 
-            TITLE: ${title || "Untitled Research"}
-            TARGET LENGTH: ${length} (${targetWords}).
+            if (!title) return showError("Domain topic is mandatory.");
             
-            TASK: 
-            1. Rewrite data into a professional report.
-            2. USE UPLOADED IMAGES: You MUST place image placeholders {{IMAGE:N}} where relevant.
-            3. OUTPUT: Pure text, no markdown characters like # or *.
-            4. COMPLIANCE: Write precisely ${targetWords}.`;
-
-            const contents = [{ 
-                parts: [
-                    { text: `DATA:\n${extractedText}` },
-                    ...imageDataUrls.map((url, i) => ({
-                        inlineData: { mimeType: "image/png", data: url.split(',')[1] }
-                    }))
-                ] 
-            }];
+            setLoading(true, "generating");
 
             try {
-                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
+                // DOUBLED WORD COUNT MAP
+                const wordCountMap = { 
+                    "3 pages": "2400-3000", 
+                    "4 pages": "3200-4000", 
+                    "5 pages": "4000-5000", 
+                    "6 pages": "4800-6000", 
+                    "7 pages": "5600-7000", 
+                    "8 pages": "6400-8000", 
+                    "9 pages": "7200-9000", 
+                    "10 pages": "8000-10000" 
+                };
+                const targetWords = wordCountMap[lengthSel];
+                const assetCount = imageDataUrls.length;
+
+                const assetLogic = assetCount > 0 ? `PLACE {{IMAGE:0}} to {{IMAGE:${assetCount-1}}} strategically in the text.` : "";
+
+                const prompt = `Synthesize professional research for: "${title}". Volume: ${targetWords} words. 
+                ${assetLogic}
+                EXTRACT: ${manualExtract || "N/A. Generate full original expert analysis."}
+                
+                RULES:
+                1. Expand autonomously into an extensive, multi-page professional manuscript if extract is short.
+                2. Structure: Academic chapters (Abstract, Introduction, Data, Methodology, Discussion, Conclusion).
+                3. TONE: ${journalReferenceText ? "Mimic tone of uploaded journals." : "Sophisticated academic."}
+                4. PLACEMENT: Logically integrate {{IMAGE:N}} tags.
+                5. NO markdown formatting. PURE TEXT.`;
+
+                const data = await fetchWithRetry(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${activeKey}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ contents, systemInstruction: { parts: [{ text: sysPrompt }] } })
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: prompt }] }],
+                        systemInstruction: { parts: [{ text: "You are a World-Class Research Specialist. Output PURE text with no markdown markers." }] }
+                    })
                 });
+                
+                const resultText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+                if (!resultText) throw new Error("Synthesis failed.");
 
-                const data = await response.json();
-                outputArea.value = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+                document.getElementById('ai-output').value = resultText;
                 setLoading(false, "success");
                 document.getElementById('export-suite').classList.remove('hidden');
-            } catch (err) {
-                showError("API Error. Check key.");
-                setLoading(false, "error");
+                cleanupArtifacts(); 
+                
+            } catch (err) { 
+                console.error(err);
+                showError(`Synthesis Error: ${err.message}`); 
+                setLoading(false); 
             }
         }
 
         async function humanizeResearch() {
-            const apiKey = document.getElementById('api-key').value;
-            const currentContent = document.getElementById('ai-output').value;
-            const hBtn = document.getElementById('humanize-btn');
-            const previewContent = document.getElementById('preview-content');
+            const userKey = document.getElementById('api-key').value;
+            const activeKey = userKey || apiKeyEnv;
+            const text = document.getElementById('ai-output').value;
+            const btn = document.getElementById('humanize-btn');
+            if (!text) return;
+            btn.disabled = true; btn.innerText = "Processing Linguistic Patterns...";
+            
+            try {
+                const data = await fetchWithRetry(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${activeKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ contents: [{ parts: [{ text: `Humanize the following text to pass AI detection. Vary burstiness/perplexity. Mimic: ${journalReferenceText || "Human Scholar"}. KEEP {{IMAGE:N}} TAGS. PURE TEXT.\n\nTEXT: ${text}` }] }] })
+                });
+                const result = data.candidates?.[0]?.content?.parts?.[0]?.text;
+                if(result) {
+                    document.getElementById('ai-output').value = result;
+                    renderContent(result, document.getElementById('preview-content'));
+                    document.getElementById('human-indicator').className = "w-4 h-4 rounded-full bg-green-500 animate-pulse shadow-lg";
+                    document.getElementById('human-status').innerText = "Anti-Detect Layer Active";
+                }
+                btn.innerText = "Refined!";
+                setTimeout(() => { btn.disabled = false; btn.innerText = "Humanize"; }, 3000);
+            } catch (e) { btn.disabled = false; btn.innerText = "Humanize"; }
+        }
 
-            if (!apiKey || !currentContent) return;
+        async function checkAiPercentage() {
+            const userKey = document.getElementById('api-key').value;
+            const activeKey = userKey || apiKeyEnv;
+            const text = document.getElementById('ai-output').value;
+            const btn = document.getElementById('audit-btn');
+            const meterBox = document.getElementById('ai-percent-box');
+            const meter = document.getElementById('ai-percentage-meter');
+            const label = document.getElementById('percent-label');
 
-            hBtn.disabled = true;
-            hBtn.innerHTML = `<svg class="animate-spin h-3.5 w-3.5" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Humanizing...`;
-
-            const sysPrompt = `You are an expert academic editor. Rewrite the following research paper to sound completely natural, human-written, and professional. 
-            CRITICAL RULES:
-            1. Remove all robotic phrasing, repetitive sentence structures, and typical AI-isms.
-            2. Maintain the exact same section headings and factual data.
-            3. KEEP the image placeholders like {{IMAGE:N}} exactly where they are.
-            4. Optimize for IEEE, Google Scholar, and academic publication standards.
-            5. Output PURE text without markdown symbols (#, *).`;
+            if (!text) return;
+            btn.disabled = true;
+            meterBox.classList.remove('hidden');
+            meter.style.width = "0%";
+            label.innerText = "Scanning Linguistic Rhythms...";
 
             try {
-                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
+                const data = await fetchWithRetry(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${activeKey}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ 
-                        contents: [{ parts: [{ text: currentContent }] }], 
-                        systemInstruction: { parts: [{ text: sysPrompt }] } 
+                        contents: [{ parts: [{ text: `Determine human authorship probability (0-100) based on sentence variation. Return ONLY integer. TEXT: ${text.substring(0, 5000)}` }] }] 
                     })
                 });
-
-                const data = await response.json();
-                const result = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
-                
-                // Update both background store and active preview
-                document.getElementById('ai-output').value = result;
-                renderContent(result, previewContent);
-
-                hBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" /></svg> Humanized!`;
+                const score = parseInt(data.candidates?.[0]?.content?.parts?.[0]?.text) || 0;
                 setTimeout(() => {
-                    hBtn.disabled = false;
-                    hBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg> Humanize Paper`;
-                }, 2000);
-
-            } catch (err) {
-                showError("Humanization failed. Check connection.");
-                hBtn.disabled = false;
-                hBtn.innerText = "Humanize Paper";
-            }
+                    meter.style.width = score + "%";
+                    label.innerText = `${score}% Human Logic Density`;
+                    btn.disabled = false;
+                }, 800);
+            } catch (e) { btn.disabled = false; label.innerText = "Audit Interrupted."; }
         }
 
         function downloadAsDoc() {
-            const title = document.getElementById('research-title').value || "Research-Report";
-            const contentHtml = getSanitizedHtml(document.getElementById('ai-output').value);
-            
-            const header = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
-                            <head><meta charset='utf-8'><title>${title}</title>
-                            <style>body {font-family: 'Merriweather', serif; padding: 40px;} h1 {text-align: center;} img {display:block; margin:auto;}</style>
-                            </head><body>`;
-            const footer = "</body></html>";
-            
-            const fullHtml = header + `<h1>${title}</h1>` + contentHtml + footer;
-            
-            const blob = new Blob(['\ufeff', fullHtml], { type: 'application/msword' });
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = `${title}.doc`;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+            const title = document.getElementById('research-title').value || "Research";
+            const content = document.getElementById('ai-output').value;
+            let docHtml = content.split('\n').map(p => {
+                const imgRegex = /{{IMAGE:(\d+)}}/;
+                if (imgRegex.test(p)) {
+                    const idx = p.match(imgRegex)[1];
+                    return imageDataUrls[idx] ? `<div style="text-align:center;margin:30pt 0;"><img src="${imageDataUrls[idx]}" width="550"></div>` : '';
+                }
+                return `<p style="text-align:justify; margin-bottom:12pt; line-height:1.7;">${p}</p>`;
+            }).join('');
+            const fullBlobHtml = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'></head><body style='font-family:serif; padding:1.2in;'><h1>${title}</h1>${docHtml}</body></html>`;
+            const blob = new Blob(['\ufeff', fullBlobHtml], { type: 'application/msword' });
+            const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = `${title.replace(/\s+/g, '_')}.doc`; link.click();
+        }
+
+        function cleanupArtifacts() {
+            const output = document.getElementById('ai-output');
+            output.value = output.value.replace(/{{IMAGE:(\d+)}}/g, (m, n) => imageDataUrls[n] ? m : '');
+            renderContent(output.value, document.getElementById('preview-content'));
         }
 
         function changeView(format) {
+            const content = document.getElementById('preview-content');
             const wrapper = document.getElementById('preview-wrapper');
-            const contentArea = document.getElementById('preview-content');
-            const btns = document.querySelectorAll('.view-btn');
-            btns.forEach(b => { b.classList.remove('bg-white', 'shadow-sm', 'text-indigo-600'); b.classList.add('text-slate-500'); });
-            document.getElementById(`btn-${format}`).classList.add('bg-white', 'shadow-sm', 'text-indigo-600');
-            wrapper.classList.remove('view-columns', 'view-table');
-            if (format === 'columns') wrapper.classList.add('view-columns');
-            if (format === 'table') wrapper.classList.add('view-table');
-            contentArea.dataset.view = format;
-            renderContent(document.getElementById('ai-output').value, contentArea);
+            content.dataset.view = format;
+            wrapper.className = `max-w-4xl mx-auto bg-white p-20 md:p-32 shadow-2xl border border-slate-100 min-h-full transition-all duration-700 rounded-sm view-${format}`;
+            document.querySelectorAll('.view-btn').forEach(b => { b.classList.remove('bg-white', 'shadow-2xl', 'text-indigo-600'); b.classList.add('text-slate-500'); });
+            document.getElementById(`btn-${format}`).classList.add('bg-white', 'shadow-2xl', 'text-indigo-600');
+            renderContent(document.getElementById('ai-output').value, content);
         }
 
         function exportOnline() {
+            const content = document.getElementById('ai-output').value;
+            if(!content) return showError("Synthesis required.");
             document.getElementById('preview-title').innerText = document.getElementById('research-title').value || "Research Report";
             document.getElementById('online-preview-modal').classList.remove('hidden');
             changeView('page');
         }
 
         function closeOnlinePreview() { document.getElementById('online-preview-modal').classList.add('hidden'); }
-
-        function setLoading(active, state = "") {
-            const btn = document.getElementById('generate-btn');
-            const dot = document.getElementById('badge-dot');
-            const txt = document.getElementById('badge-text');
-            if (active) {
-                btn.disabled = true; btn.innerText = "Synthesizing Multimodal Report...";
-                dot.className = "w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse";
-                txt.innerText = "Processing Assets...";
-            } else {
-                btn.disabled = false; btn.innerText = "Process & Generate";
-                if (state === "success") { dot.className = "w-1.5 h-1.5 rounded-full bg-green-500"; txt.innerText = "Finest Copy Generated"; }
-            }
-        }
-
         function showError(m) { document.getElementById('error-message').innerText = m; document.getElementById('error-modal').classList.remove('hidden'); }
         function closeError() { document.getElementById('error-modal').classList.add('hidden'); }
-    </script>
-    <script>
-function goBack() {
-    window.location.href = "file:///D:/copy%20creater.html";
-}
-</script>
+        function goBack() { window.history.back(); }
 
+        function setLoading(active, phase = "") {
+            const btn = document.getElementById('generate-btn');
+            const dot = document.getElementById('ready-dot');
+            const txt = document.getElementById('ready-text');
+            if (active) {
+                btn.disabled = true;
+                btn.innerText = "Report is generating...";
+                dot.className = "w-3 h-3 rounded-full bg-indigo-500 animate-pulse";
+                txt.innerText = "Synthesizing manuscript...";
+            } else {
+                btn.disabled = false;
+                btn.innerText = "Synthesize manuscript";
+                if (phase === "success") { 
+                    dot.className = "w-3 h-3 rounded-full bg-green-500 shadow-lg"; 
+                    txt.innerText = "Report is ready"; 
+                }
+            }
+        }
+    </script>
 </body>
 </html>
